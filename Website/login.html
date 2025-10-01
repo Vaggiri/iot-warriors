@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IoT Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #000000;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+        .form-container {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .form-input {
+             transition: border-color 0.3s, box-shadow 0.3s;
+        }
+        .form-input:focus {
+            border-color: #00ff00;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5), 0 0 10px rgba(0, 255, 0, 0.7) inset;
+            outline: none;
+        }
+        .form-input-error {
+            border-color: #ef4444 !important; /* red-500 */
+            box-shadow: 0 0 25px rgba(239, 68, 68, 0.5), 0 0 10px rgba(239, 68, 68, 0.7) inset !important;
+        }
+        .hidden-form {
+            opacity: 0;
+            transform: scale(0.95);
+            pointer-events: none;
+            position: absolute;
+            width: 100%;
+        }
+        /* --- Vortex Transition Animation --- */
+        .vortex-container {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 100; pointer-events: none;
+            opacity: 0; transition: opacity 2.5s ease-in-out;
+        }
+        .vortex-container.vortex-active { opacity: 1; }
+        .vortex-shape {
+            position: absolute; top: 50%; left: 50%; width: 2vmax; height: 2vmax;
+            background: linear-gradient(45deg, #00ff00, #000);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            transform-origin: center; animation: vortex-spin 2.5s forwards;
+        }
+        @keyframes vortex-spin {
+            0% { transform: translate(-50%, -50%) scale(0) rotate(0deg); opacity: 1; }
+            100% { transform: translate(-50%, -50%) scale(100) rotate(720deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+    <div id="vortex-container" class="vortex-container"></div>
+
+    <div class="w-full max-w-xs p-8 space-y-6 relative h-[500px] flex items-center">
+        <div id="login-container" class="form-container">
+            <form id="login-form">
+                <div class="text-center mb-8">
+                    <i class="fas fa-city text-5xl text-green-400"></i>
+                    <h1 class="text-2xl font-bold text-white mt-4">Smart City Access</h1>
+                </div>
+                <input id="username" type="text" placeholder="Username" class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <input id="password" type="password" placeholder="Password" class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <button type="submit" class="w-full p-3 bg-green-500 text-black font-bold rounded-lg hover:bg-green-400 transition-colors duration-300">
+                    Login
+                </button>
+                <p id="login-error-message" class="text-red-500 text-center text-sm h-4 mt-2"></p>
+                <p class="text-gray-400 text-center mt-4 text-sm">
+                    No account? <a href="#" id="show-register-btn" class="font-medium text-green-400 hover:underline">Register here</a>
+                </p>
+            </form>
+        </div>
+
+        <div id="register-container" class="form-container hidden-form">
+            <form id="register-form">
+                 <div class="text-center mb-8">
+                    <i class="fas fa-user-plus text-5xl text-green-400"></i>
+                    <h1 class="text-2xl font-bold text-white mt-4">Create Account</h1>
+                </div>
+                <input id="reg-username" type="text" placeholder="Username" required class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <input id="reg-password" type="password" placeholder="Password" required class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <input id="reg-confirm-password" type="password" placeholder="Confirm Password" required class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <input id="reg-phone" type="tel" placeholder="Phone Number" required class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <input id="reg-email" type="email" placeholder="Email ID" required class="form-input w-full p-3 bg-gray-800 border-2 border-gray-700 rounded-lg text-white transition-all duration-300 mb-4">
+                <button type="submit" class="w-full p-3 bg-green-500 text-black font-bold rounded-lg hover:bg-green-400 transition-colors duration-300">
+                    Register
+                </button>
+                 <p id="register-message" class="text-green-400 text-center text-sm h-4 mt-2"></p>
+                <p class="text-gray-400 text-center mt-6 text-sm">
+                    Already registered? <a href="#" id="show-login-btn" class="font-medium text-green-400 hover:underline">Login here</a>
+                </p>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const loginContainer = document.getElementById('login-container');
+        const registerContainer = document.getElementById('register-container');
+        const showRegisterBtn = document.getElementById('show-register-btn');
+        const showLoginBtn = document.getElementById('show-login-btn');
+        const loginForm = document.getElementById('login-form');
+        const registerForm = document.getElementById('register-form');
+        const vortexContainer = document.getElementById('vortex-container');
+
+        // Input fields for error styling
+        const usernameInputLogin = document.getElementById('username');
+        const passwordInputLogin = document.getElementById('password');
+
+        showRegisterBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loginContainer.classList.add('hidden-form');
+            registerContainer.classList.remove('hidden-form');
+        });
+
+        showLoginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            registerContainer.classList.add('hidden-form');
+            loginContainer.classList.remove('hidden-form');
+        });
+
+        loginForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const username = usernameInputLogin.value;
+            const password = passwordInputLogin.value;
+            const errorMessage = document.getElementById('login-error-message');
+
+            // Clear previous errors
+            usernameInputLogin.classList.remove('form-input-error');
+            passwordInputLogin.classList.remove('form-input-error');
+
+            const isAdmin = username === 'admin_gjr' && password === 'admin@1234';
+            const users = JSON.parse(localStorage.getItem('users')) || [];
+            const registeredUser = users.find(u => u.username === username && u.password === password);
+
+            if (isAdmin || registeredUser) {
+                errorMessage.textContent = '';
+                if (registeredUser) {
+                    localStorage.setItem('userDetails', JSON.stringify(registeredUser));
+                } else {
+                    localStorage.removeItem('userDetails');
+                }
+                document.querySelector('.form-container:not(.hidden-form)').style.opacity = '0';
+                vortexContainer.classList.add('vortex-active');
+                for (let i = 0; i < 5; i++) {
+                    const shape = document.createElement('div');
+                    shape.classList.add('vortex-shape');
+                    shape.style.animationDelay = `${i * 0.1}s`;
+                    vortexContainer.appendChild(shape);
+                }
+                setTimeout(() => { window.location.href = './dash.html'; }, 2500);
+            } else {
+                errorMessage.textContent = 'Invalid username or password.';
+                usernameInputLogin.classList.add('form-input-error');
+                passwordInputLogin.classList.add('form-input-error');
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                    usernameInputLogin.classList.remove('form-input-error');
+                    passwordInputLogin.classList.remove('form-input-error');
+                }, 2000);
+            }
+        });
+
+        registerForm.addEventListener('submit', function(event) {
+            event.preventDefault();
+            const usernameInput = document.getElementById('reg-username');
+            const passwordInput = document.getElementById('reg-password');
+            const confirmPasswordInput = document.getElementById('reg-confirm-password');
+            const registerMessage = document.getElementById('register-message');
+
+            usernameInput.classList.remove('form-input-error');
+            passwordInput.classList.remove('form-input-error');
+            confirmPasswordInput.classList.remove('form-input-error');
+
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+            const username = usernameInput.value;
+            
+            if (password !== confirmPassword) {
+                registerMessage.textContent = "Passwords do not match!";
+                registerMessage.classList.remove('text-green-400');
+                registerMessage.classList.add('text-red-500');
+                passwordInput.classList.add('form-input-error');
+                confirmPasswordInput.classList.add('form-input-error');
+                setTimeout(() => { 
+                    registerMessage.textContent = ''; 
+                    passwordInput.classList.remove('form-input-error');
+                    confirmPasswordInput.classList.remove('form-input-error');
+                }, 3000);
+                return;
+            }
+
+            let users = JSON.parse(localStorage.getItem('users')) || [];
+            if (users.some(user => user.username === username)) {
+                registerMessage.textContent = "Username already taken!";
+                registerMessage.classList.remove('text-green-400');
+                registerMessage.classList.add('text-red-500');
+                usernameInput.classList.add('form-input-error');
+                setTimeout(() => { 
+                    registerMessage.textContent = '';
+                    usernameInput.classList.remove('form-input-error');
+                }, 3000);
+                return;
+            }
+            
+            const newUser = {
+                username: username,
+                password: password,
+                phone: document.getElementById('reg-phone').value,
+                email: document.getElementById('reg-email').value,
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            registerMessage.textContent = 'Registration successful!';
+            registerMessage.classList.remove('text-red-500');
+            registerMessage.classList.add('text-green-400');
+            setTimeout(() => {
+                showLoginBtn.click();
+                registerMessage.textContent = '';
+                registerForm.reset();
+            }, 2000);
+        });
+    </script>
+</body>
+</html>

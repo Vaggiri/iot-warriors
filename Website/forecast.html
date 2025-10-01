@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Forecast - IoT Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen flex flex-col">
+  
+  <header class="bg-header z-10">
+    <div class="container mx-auto px-4 py-6">
+      <div class="flex flex-col md:flex-row justify-between items-center">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold text-header-text"><i class="fas fa-magic mr-2"></i> ML Forecast Dashboard</h1>
+          <p class="text-header-subtext mt-1">Predictive analysis of environmental data</p>
+        </div>
+        <div class="mt-4 md:mt-0 flex items-center space-x-4">
+          <button id="logout-btn" class="bg-card text-text-primary text-xl p-2 rounded-full hover:bg-card-header focus:outline-none" title="Logout">
+              <i class="fas fa-sign-out-alt"></i>
+          </button>
+          <button id="theme-switcher-btn" class="bg-card text-text-primary text-xl p-2 rounded-full hover:bg-card-header focus:outline-none"><i class="fas fa-moon"></i></button>
+        </div>
+      </div>
+    </div>
+  </header>
+  
+  <main class="flex-grow container mx-auto px-4 py-8 z-10">
+    <div class="mb-6 border-b border-border">
+      <nav class="flex space-x-4" aria-label="Tabs">
+        <a href="./dash.html" class="tab-button shadow-sm"><i class="fas fa-tachometer-alt mr-2"></i>Gauge</a>
+        <a href="./dash.html#analytics" class="tab-button shadow-sm"><i class="fas fa-chart-bar mr-2"></i>Analytical Data</a>
+        <a href="#" class="tab-button tab-active shadow-sm"><i class="fas fa-brain mr-2"></i>Model Forecast</a>
+      </nav>
+    </div>
+
+    <div class="bg-card rounded-xl shadow-md p-6 mb-8">
+        <h2 class="text-xl font-bold text-text-primary mb-4 flex items-center"><i class="fas fa-bullseye mr-3 text-green-500"></i>Model Accuracy</h2>
+        <div id="accuracy-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            
+            <div class="bg-card-header p-4 rounded-lg">
+                <h3 class="font-bold text-text-primary mb-2">Temperature</h3>
+                <ul class="text-sm text-text-secondary space-y-1">
+                    <li class="font-bold text-lg text-primary"><span id="temperature-accuracy">--</span> % <span class="text-sm font-medium text-text-secondary">Accuracy</span></li>
+                    <li><strong>MAPE:</strong> <span id="temperature-mape">--</span> %</li>
+                    <li><strong>MAE:</strong> <span id="temperature-mae">--</span></li>
+                    <li><strong>RMSE:</strong> <span id="temperature-rmse">--</span></li>
+                </ul>
+            </div>
+            
+            <div class="bg-card-header p-4 rounded-lg">
+                <h3 class="font-bold text-text-primary mb-2">Humidity</h3>
+                <ul class="text-sm text-text-secondary space-y-1">
+                    <li class="font-bold text-lg text-primary"><span id="humidity-accuracy">--</span> % <span class="text-sm font-medium text-text-secondary">Accuracy</span></li>
+                    <li><strong>MAPE:</strong> <span id="humidity-mape">--</span> %</li>
+                    <li><strong>MAE:</strong> <span id="humidity-mae">--</span></li>
+                    <li><strong>RMSE:</strong> <span id="humidity-rmse">--</span></li>
+                </ul>
+            </div>
+
+            <div class="bg-card-header p-4 rounded-lg">
+                <h3 class="font-bold text-text-primary mb-2">CO₂</h3>
+                <ul class="text-sm text-text-secondary space-y-1">
+                    <li class="font-bold text-lg text-primary"><span id="carbon-accuracy">--</span> % <span class="text-sm font-medium text-text-secondary">Accuracy</span></li>
+                    <li><strong>MAPE:</strong> <span id="carbon-mape">--</span> %</li>
+                    <li><strong>MAE:</strong> <span id="carbon-mae">--</span></li>
+                    <li><strong>RMSE:</strong> <span id="carbon-rmse">--</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 my-8">
+      <div class="lg:col-span-2 bg-card rounded-xl shadow-md p-6">
+        <h2 class="text-xl font-bold text-text-primary mb-4">Future Predictions</h2>
+        <div class="flex flex-wrap gap-4 mb-4">
+            <select id="chart-data-filter" class="filter-select">
+                <option value="carbon">Carbon (ppm)</option>
+                <option value="temperature">Temperature (°C)</option>
+                <option value="humidity">Humidity (%)</option>
+            </select>
+        </div>
+        <div class="h-80">
+          <canvas id="forecast-chart"></canvas>
+        </div>
+      </div>
+      
+      <div class="bg-card rounded-xl shadow-md overflow-hidden">
+        <div class="card-header px-6 py-4 bg-card-header"><h2 class="text-lg font-semibold text-text-primary"><i class="fas fa-lightbulb text-yellow-400 mr-2"></i> Forecast-Based Advice</h2></div>
+        <div id="advice-panel" class="p-6">
+            <p class="text-text-secondary text-center">Loading advice...</p>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="bg-card border-t border-border py-4 z-10"><div class="container mx-auto px-4"><div class="text-center text-text-secondary text-sm">&copy; 2025 Smart City IoT Platform. All rights reserved.</div></div></footer>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- GLOBAL VARIABLES & DOM Elements ---
+        let forecastChart = null;
+        const FIREBASE_BASE_URL = 'https://gas-value-33f5a-default-rtdb.firebaseio.com/';
+        const themeSwitcherBtn = document.getElementById('theme-switcher-btn');
+        const logoutBtn = document.getElementById('logout-btn');
+        const chartDataFilter = document.getElementById('chart-data-filter');
+        const chartCanvas = document.getElementById('forecast-chart').getContext('2d');
+
+        // --- THEME & LOGOUT ---
+        themeSwitcherBtn.addEventListener('click', (event) => { const currentTheme = document.body.getAttribute('data-theme') || 'light'; setTheme(currentTheme === 'light' ? 'dark' : 'light', event); });
+        function setTheme(themeId, event) { if (event && document.startViewTransition) { const x = event.clientX, y = event.clientY; document.documentElement.style.setProperty('--ripple-x', x + 'px'); document.documentElement.style.setProperty('--ripple-y', y + 'px'); document.startViewTransition(() => { document.body.setAttribute('data-theme', themeId); }); } else { document.body.setAttribute('data-theme', themeId); } localStorage.setItem('theme', themeId); themeSwitcherBtn.innerHTML = themeId === 'dark' ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; renderForecastChart(); }
+        logoutBtn.addEventListener('click', () => { localStorage.removeItem('userDetails'); window.location.href = './index.html'; });
+
+        // --- DATA FETCHING ---
+        async function fetchData() {
+            try {
+                const [accuracyRes, forecastRes, adviceRes, historicalRes] = await Promise.all([
+                    fetch(`${FIREBASE_BASE_URL}ForecastAccuracy.json`),
+                    fetch(`${FIREBASE_BASE_URL}ForecastData.json`),
+                    fetch(`${FIREBASE_BASE_URL}ForecastAdvice.json`),
+                    fetch(`${FIREBASE_BASE_URL}SensorData.json`) // Also get historical data for context
+                ]);
+                
+                const accuracyData = await accuracyRes.json();
+                const forecastData = await forecastRes.json();
+                const adviceData = await adviceRes.json();
+                const historicalData = await historicalRes.json();
+
+                updateAccuracyCards(accuracyData);
+                updateAdvicePanel(adviceData);
+                window.forecastData = forecastData; // Store globally for chart re-render
+                window.historicalData = historicalData;
+                renderForecastChart();
+
+            } catch (error) {
+                console.error("Failed to fetch forecast data:", error);
+            }
+        }
+
+        // --- UI UPDATE FUNCTIONS ---
+        function updateAccuracyCards(data) {
+            if (!data) return;
+            ['temperature', 'humidity', 'carbon'].forEach(metric => {
+                const metrics = data[metric] || {};
+                
+                // --- UPDATED LOGIC ---
+                // Display raw metrics, handling scientific notation and nulls
+                const mapeValue = metrics.MAPE;
+                document.getElementById(`${metric}-mape`).textContent = mapeValue != null ? Number(mapeValue).toFixed(4) : '--';
+                document.getElementById(`${metric}-mae`).textContent = metrics.MAE != null ? Number(metrics.MAE).toFixed(4) : '--';
+                document.getElementById(`${metric}-rmse`).textContent = metrics.RMSE != null ? Number(metrics.RMSE).toFixed(4) : '--';
+
+                // Calculate and display the accuracy percentage
+                let accuracyPercent = '--';
+                if (mapeValue != null) {
+                    accuracyPercent = (100 - mapeValue).toFixed(4);
+                }
+                document.getElementById(`${metric}-accuracy`).textContent = accuracyPercent;
+            });
+        }
+
+        function updateAdvicePanel(advice) {
+            const panel = document.getElementById('advice-panel');
+            if (advice && advice.length > 0) {
+                panel.innerHTML = '<ul class="space-y-2"></ul>';
+                const ul = panel.querySelector('ul');
+                advice.forEach(item => {
+                    const li = document.createElement('li');
+                    li.className = 'text-text-primary text-sm flex items-start';
+                    li.innerHTML = `<i class="fas fa-check-circle text-green-500 mr-2 mt-1"></i><span>${item}</span>`;
+                    ul.appendChild(li);
+});
+            } else {
+                panel.innerHTML = '<p class="text-text-secondary text-center">No advice available.</p>';
+            }
+        }
+
+        // --- RENDER FORECAST CHART ---
+        function renderForecastChart() {
+            if (!window.forecastData || !window.historicalData) return;
+            if (forecastChart) { forecastChart.destroy(); }
+            
+            const selectedMetric = chartDataFilter.value;
+            const forecast = window.forecastData[selectedMetric] || [];
+            
+            // Prepare historical data
+            const historicalLabels = [new Date(window.historicalData.timestamp)];
+            const historicalPoints = [window.historicalData[selectedMetric]];
+
+            // Prepare forecast data
+            const forecastLabels = forecast.map(d => new Date(d.ds));
+            const forecastPoints = forecast.map(d => d.yhat_corrected);
+
+            const allLabels = [...historicalLabels, ...forecastLabels];
+            
+            const theme = document.body.getAttribute('data-theme') || 'light';
+            const gridColor = theme === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+            const fontColor = theme === 'dark' ? '#f8fafc' : '#1f2937';
+            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--color-primary').trim();
+            
+            forecastChart = new Chart(chartCanvas, { 
+                type: 'line', 
+                data: {
+                    labels: allLabels,
+                    datasets: [
+                        { 
+                            label: 'Historical', 
+                            data: historicalPoints,
+                            borderColor: primaryColor,
+                            backgroundColor: `${primaryColor}33`,
+                            tension: 0.1,
+                            spanGaps: true
+                        },
+                        {
+                            label: 'Forecast',
+                            data: [historicalPoints[historicalPoints.length-1], ...forecastPoints],
+                            borderColor: '#f59e0b', // Amber color for forecast
+                            borderDash: [5, 5],
+                            backgroundColor: '#f59e0b33',
+                            tension: 0.1
+                        }
+                    ]
+                }, 
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { 
+                        x: { type: 'time', time: { unit: 'minute', tooltipFormat: 'h:mm:ss a' }, grid: { color: gridColor }, ticks: { color: fontColor } }, 
+                        y: { beginAtZero: false, grid: { color: gridColor }, ticks: { color: fontColor } } 
+                    }, 
+                    plugins: { legend: { labels: { color: fontColor } } }
+                }
+            });
+        }
+        
+        // --- INITIALIZATION ---
+        function initialize() {
+            setTheme(localStorage.getItem('theme') || 'light');
+            chartDataFilter.addEventListener('change', renderForecastChart);
+            fetchData();
+            setInterval(fetchData, 30000); // Refresh data every 30 seconds
+        }
+
+        initialize();
+    });
+  </script>
+</body>
+</html>

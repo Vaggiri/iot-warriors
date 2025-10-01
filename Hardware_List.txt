@@ -1,0 +1,16 @@
+Hardware Components ⚙️
+ESP32 Development Board: The main microcontroller for the project.
+
+DHT11 Sensor: Measures temperature and humidity.
+
+MQ-7 Sensor Module: Detects carbon monoxide levels.
+
+Neo6M GPS Module: Provides location data.
+
+3.7V Lithium-Ion Battery: A rechargeable power source (e.g., 18650 cell).
+
+TP4056 Charging Module: Manages the charging and discharging of the Li-ion battery and provides a stable output.
+
+Breadboard: Used for assembling the circuit without soldering.
+
+Jumper Wires: For making connections between all the components.

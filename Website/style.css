@@ -1,0 +1,152 @@
+/* CSS variables for themes */
+:root {
+  --color-bg: #f4f7fa; /* Lighter background for more contrast */
+  --color-card: #ffffff;
+  /* UPDATED: Darker header for better separation */
+  --color-card-header: #e2e8f0; 
+  --color-border: #e2e8f0; /* Softer border color */
+  --color-text-primary: #1e293b; /* Darker primary text */
+  --color-text-secondary: #475569; /* Darker secondary text */
+  --color-header-bg: linear-gradient(to right, #2563eb, #1d4ed8);
+  --color-header-text: #ffffff;
+  --color-header-accent: #1e40af;
+  --color-primary: #2563eb;
+  /* Enhanced, deeper shadow */
+  --color-shadow: rgba(0, 0, 0, 0.12); 
+  --card-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -2px var(--color-shadow);
+}
+[data-theme='dark'] {
+  --color-bg: #0f172a; /* Deeper dark background */
+  --color-card: #1e293b;
+  /* UPDATED: Slightly lighter for better contrast in dark mode */
+  --color-card-header: #334155; 
+  --color-border: #334155;
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #94a3b8;
+  --color-header-bg: #1e293b;
+  --color-header-text: #ffffff;
+  --color-header-accent: #334155;
+  --color-primary: #3b82f6;
+  /* Deeper shadow for dark mode */
+  --color-shadow: rgba(0, 0, 0, 0.25); 
+  --card-shadow: 0 5px 15px var(--color-shadow);
+}
+
+/* Base Body Styles */
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+  transition: background-color 0.5s, color 0.5s; /* Smooth transition */
+}
+
+/* Card Styling with new shadow and border */
+.bg-card {
+  background-color: var(--color-card);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--card-shadow);
+}
+
+/* Header with theme-aware shadow */
+header {
+    box-shadow: 0 4px 6px -1px var(--color-shadow), 0 2px 4px -2px var(--color-shadow);
+}
+
+/* --- Theme-Aware Utility Classes --- */
+.bg-header { background: var(--color-header-bg); }
+.text-text-primary { color: var(--color-text-primary); }
+.text-text-secondary { color: var(--color-text-secondary); }
+.border-border { border-color: var(--color-border); }
+.text-header-text { color: var(--color-header-text); }
+.text-header-subtext { color: var(--color-header-text); opacity: 0.8; }
+.bg-header-accent { background-color: var(--color-header-accent); }
+.bg-card-header { background-color: var(--color-card-header); }
+
+
+/* --- Dark Mode Leaflet Popup Styles --- */
+[data-theme='dark'] .leaflet-popup-content-wrapper,
+[data-theme='dark'] .leaflet-popup-tip {
+    background-color: var(--color-card-header);
+    color: var(--color-text-primary);
+    box-shadow: var(--card-shadow);
+}
+[data-theme='dark'] .leaflet-tile-pane { 
+    filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3) brightness(0.7); 
+}
+
+/* --- CSS Gauge Styles --- */
+.gauge { width: 100%; height: 100px; position: relative; }
+.gauge-body { width: 100%; height: 0; padding-bottom: 50%; background: #e0e0e0; position: relative; border-top-left-radius: 100% 200%; border-top-right-radius: 100% 200%; overflow: hidden; }
+[data-theme='dark'] .gauge-body { background: #374151; } /* Darker gauge background */
+.gauge-fill { position: absolute; top: 100%; left: 0; width: inherit; height: 100%; background: linear-gradient(to right, #1E88E5, #43A047, #D81B60); transform-origin: center top; transform: rotate(0.25turn); transition: transform 0.2s; }
+.gauge-cover { width: 75%; height: 150%; background: var(--color-card); border-radius: 50%; position: absolute; top: 25%; left: 12.5%; display: flex; align-items: center; justify-content: center; padding-bottom: 25%; box-sizing: border-box; font-size: 1.75rem; font-weight: bold; color: var(--color-text-primary); }
+.gauge-cover > span { font-size: 0.8rem; font-weight: normal; margin-left: 2px; }
+
+/* Styles for filter dropdowns */
+.filter-select { background-color: var(--color-card-header); border: 1px solid var(--color-border); color: var(--color-text-primary); border-radius: 0.5rem; padding: 0.5rem 2rem 0.5rem 0.75rem; -webkit-appearance: none; -moz-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 0.5rem center; background-size: 1.5em 1.5em; }
+
+/* Tab Styles */
+.tab-button { padding: 0.5rem 1rem; font-size: 1rem; font-weight: 600; color: var(--color-text-secondary); border-bottom: 2px solid transparent; border-radius: 6px 6px 0 0; transform: translateY(1px); transition: all 0.2s ease-in-out; }
+.tab-button:hover { color: var(--color-primary); background-color: var(--color-card-header); }
+.tab-button.tab-active { color: var(--color-primary); border-bottom-color: var(--color-primary); background-color: var(--color-card); box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px -1px rgba(0,0,0,0.1); }
+
+/* --- Alert Toast Styles --- */
+.toast { background-color: var(--color-card); color: var(--color-text-primary); padding: 1rem; border-radius: 0.5rem; box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0; transform: translateX(100%); transition: all 0.3s ease-in-out; border-left: 5px solid; width: 320px; }
+.toast.show { opacity: 1; transform: translateX(0); }
+.toast-error { border-color: #D81B60; }
+.toast-warning { border-color: #FB8C00; }
+
+@keyframes ripple-in { from { clip-path: circle(0% at var(--ripple-x) var(--ripple-y)); } to { clip-path: circle(150% at var(--ripple-x) var(--ripple-y)); } }
+::view-transition-new(root) { animation: ripple-in 1.2s ease-in-out; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 1.2s; }
+#map { height: 250px; }
+#theme-switcher-btn { box-shadow: none !important; }
+
+/* Add to style.css for smoother transitions */
+.gauge-fill {
+    /* Make the needle movement smooth */
+    transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+}
+
+.gauge-cover {
+    /* Make the background color change smooth */
+    transition: background-color 0.5s;
+}
+
+/* Animation for number counting up */
+@keyframes count-up {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-count-up {
+  animation: count-up 0.5s ease-out forwards;
+}
+
+/* Add to style.css */
+
+/* --- Professional Leaflet Layer Control Styles --- */
+.leaflet-control-layers {
+    background: var(--color-card);
+    border: 1px solid var(--color-border);
+    box-shadow: var(--card-shadow);
+    border-radius: 8px;
+}
+.leaflet-control-layers-base label,
+.leaflet-control-layers-overlays label {
+    color: var(--color-text-primary);
+    font-weight: 500;
+}
+.leaflet-control-layers-separator {
+    border-top: 1px solid var(--color-border);
+}
+
+[data-theme='dark'] .leaflet-control-layers a {
+    color: var(--color-text-primary);
+}
+
