@@ -3,6 +3,8 @@ Of course\! Here is a comprehensive `README.md` file for your project, generated
 -----
 
 # Smart City IoT Environmental Monitoring & Forecasting Platform
+[🌐 Website Deployed link ](https://iot-warriors.netlify.app)
+[🌐 Google Colab notebook link](https://colab.research.google.com/drive/1wBUSAnkVatKazUzt9MJOqNU0fmErMAW5?usp=sharing)
 
 A full-stack IoT solution for real-time environmental monitoring and predictive analysis. This project uses an ESP32-based sensor node to collect data on temperature, humidity, and carbon monoxide levels. The data is streamed to a Firebase Realtime Database, visualized on a dynamic web dashboard, and used to train a machine learning model for future forecasting.
 
